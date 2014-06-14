@@ -4,12 +4,15 @@ from mysql import connector
 import os
 
 GROUP=8
-ROOT=u'练习源代码'
-HOST='222.204.211.2'
-DB='onlinejudge'
+ROOT=u'源代码'
+HOSTREMOTE='222.204.211.2'
+DBREMOTE='onlinejudge'
+CONTEST=20140520
+HOSTLOCAL='127.0.0.1'
+DBLOCAL='dhuoj'
 
-def creatConn():
-	conn=connector.connect(host=HOST,user="root",passwd="root",db=DB)
+def creatConn(host,db):
+	conn=connector.connect(host=host,user="root",passwd="root",db=db)
 	return conn
 
 def closeConn(conn):
@@ -63,6 +66,7 @@ class Escode:
 			print "file exists!"
 		cur.execute(eval(self.sqlContest))
 		contests=cur.fetchall()
+		print contests,'aaaaaaaaaaaaaaaa'
 		for contest in contests:
 			contestFolder=os.path.join(ROOT,contest[1])
 			try:
@@ -70,7 +74,7 @@ class Escode:
 			except OSError:
 				print "contest dir exists!"
 			for user in users:
-				folderName=user[3]+'_'+user[4]+'_'+user[1]
+				folderName=user[0]+'_'+user[1]+'_'+user[2]
 				print folderName
 				userFolder=os.path.join(contestFolder,folderName)
 				try:
@@ -106,14 +110,20 @@ class Escode:
 
 
 if __name__=='__main__':
-	conn=creatConn()
-	sqlExercise={
-			'sqlUser':r'"select * from t_user,t_group_user where t_user.id = t_group_user.user_id and t_group_user.group_id=%d;" % GROUP',
-			'sqlContest':r'"select t_contest.id,t_contest.title from t_contest,t_contest_group where t_contest.id=t_contest_group.contest_id and t_contest_group.group_id=%d;" % GROUP',
-			'sqlCode':r'"select problem_id,id,code,result from t_contest_group,t_solution where  t_contest_group.group_id=%d and t_contest_group.contest_id=t_solution.contest_id and t_solution.user_id=%d and t_solution.contest_id=%d;" % (GROUP,user[0],contest[0])',
-			'sqlSequence':r'"select sequence from t_contest_problem where problem_id=%d and contest_id=%d" % (code[0],contest[0])'
+	conn=creatConn(HOSTLOCAL,DBLOCAL)
+	#sqlExercise={
+			#'sqlUser':r'"select t_user.loginId,t_user.name,t_user.class,t_user.id from t_user,t_group_user where t_user.id = t_group_user.user_id and t_group_user.group_id=%d;" % GROUP',
+			#'sqlContest':r'"select t_contest.id,t_contest.title from t_contest,t_contest_group where t_contest.id=t_contest_group.contest_id and t_contest_group.group_id=%d;" % GROUP',
+			#'sqlCode':r'"select problem_id,id,code,result from t_contest_group,t_solution where  t_contest_group.group_id=%d and t_contest_group.contest_id=t_solution.contest_id and t_solution.user_id=%d and t_solution.contest_id=%d;" % (GROUP,user[3],contest[0])',
+			#'sqlSequence':r'"select sequence from t_contest_problem where problem_id=%d and contest_id=%d" % (code[0],contest[0])'
+			#}
+	sqlExam={
+			'sqlUser':r'"select user.user_id,user.nick,user.school from user,contest_reservation where user.user_id = contest_reservation.user_id and contest_reservation.contest_id=%d;" % CONTEST',
+			'sqlContest':r'"select contest.contest_id,contest.title from contest where contest.contest_id=%d;" % CONTEST',
+			'sqlCode':r'"select solution.problem_id,solution.solution_id,source_code.source,solution.result from solution,source_code where solution.user_id=\'%s\' and solution.contest_id=%d and solution.solution_id=source_code.solution_id;" % (user[0],contest[0])',
+			'sqlSequence':r'"select sequence from contest_problem where problem_id=%d and contest_id=%d" % (code[0],contest[0])'
 			}
-	es=Escode(sqlExercise)
+	es=Escode(sqlExam)
 	users=es.getUser(conn)
 	print len(users)
 	es.extract(users,conn)
