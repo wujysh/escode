@@ -15,13 +15,13 @@ DBLOCAL='dhuoj'
 sqlExercise={
 		'sqlUser':r'"select t_user.loginId,t_user.name,t_user.class,t_user.id from t_user,t_group_user where t_user.id = t_group_user.user_id and t_group_user.group_id=%d;" % GROUP',
 		'sqlContest':r'"select t_contest.id,t_contest.title from t_contest,t_contest_group where t_contest.id=t_contest_group.contest_id and t_contest_group.group_id=%d;" % GROUP',
-		'sqlCode':r'"select problem_id,id,code,result from t_contest_group,t_solution where  t_contest_group.group_id=%d and t_contest_group.contest_id=t_solution.contest_id and t_solution.user_id=%d and t_solution.contest_id=%d;" % (GROUP,user[3],contest[0])',
+		'sqlCode':r'"select problem_id,id,code,language,result from t_contest_group,t_solution where  t_contest_group.group_id=%d and t_contest_group.contest_id=t_solution.contest_id and t_solution.user_id=%d and t_solution.contest_id=%d;" % (GROUP,user[3],contest[0])',
 		'sqlSequence':r'"select sequence from t_contest_problem where problem_id=%d and contest_id=%d" % (code[0],contest[0])'
 		}
 sqlExam={
 		'sqlUser':r'"select user.user_id,user.nick,user.school from user,contest_reservation where user.user_id = contest_reservation.user_id and contest_reservation.contest_id=%d;" % CONTEST',
 		'sqlContest':r'"select contest.contest_id,contest.title from contest where contest.contest_id=%d;" % CONTEST',
-		'sqlCode':r'"select solution.problem_id,solution.solution_id,source_code.source,solution.result from solution,source_code where solution.user_id=\'%s\' and solution.contest_id=%d and solution.solution_id=source_code.solution_id;" % (user[0],contest[0])',
+		'sqlCode':r'"select solution.problem_id,solution.solution_id,source_code.source,solution.language,solution.result from solution,source_code where solution.user_id=\'%s\' and solution.contest_id=%d and solution.solution_id=source_code.solution_id;" % (user[0],contest[0])',
 		'sqlSequence':r'"select sequence from contest_problem where problem_id=%d and contest_id=%d" % (code[0],contest[0])'
 		}
 
@@ -59,6 +59,17 @@ TITLE={
 		13:'M',
 		14:'N',
 		15:'O'
+		}
+LANGUAGEEXAM={
+		0:'pas',
+		1:'c',
+		2:'cpp',
+		3:'java',
+		}
+LANGUAGEEXERCISE={
+		0:'cpp',
+		1:'c',
+		2:'java',
 		}
 class Escode:
 	def __init__(self,sqls,isExam):
@@ -109,10 +120,11 @@ class Escode:
 						cur.execute(eval(self.sqlSequence))
 						sequence=cur.fetchall()
 						#print sequence,type(sequence),sequence[0][0],code[-1]
+						ext = (LANGUAGEEXAM if self.isExam else LANGUAGEEXERCISE)[code[-2]]
 						try:
-							fileName=os.path.join(userFolder,user[0]+'_'+user[1]+'_'+TITLE[sequence[0][0]]+'_'+RESULT[code[-1]]+'_'+str(code[1])+'.cpp')
+							fileName=os.path.join(userFolder,user[0]+'_'+user[1]+'_'+TITLE[sequence[0][0]]+'_'+RESULT[code[-1]]+'_'+str(code[1])+'.'+ext)
 						except:
-							fileName=os.path.join(userFolder,user[0]+'_'+user[1]+'_'+TITLE[sequence[0][0]]+'_'+'WR'+'_'+str(code[1])+'.cpp')
+							fileName=os.path.join(userFolder,user[0]+'_'+user[1]+'_'+TITLE[sequence[0][0]]+'_'+'WR'+'_'+str(code[1])+'.'+ext)
 						f=file(fileName,'w')
 						try:
 							f.write(code[2].encode('gbk'))
