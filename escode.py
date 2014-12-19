@@ -13,14 +13,14 @@ CONTEST=20140520
 HOSTLOCAL='127.0.0.1'
 DBLOCAL='dhuoj'
 sqlExercise={
-		'sqlUser':r'"select t_user.loginId,t_user.name,t_user.class,t_user.id from t_user,t_group_user where t_user.id = t_group_user.user_id and t_group_user.group_id=%d;" % GROUP',
-		'sqlContest':r'"select t_contest.id,t_contest.title from t_contest,t_contest_group where t_contest.id=t_contest_group.contest_id and t_contest_group.group_id=%d;" % GROUP',
+		'sqlUser':r"select t_user.loginId,t_user.name,t_user.class,t_user.id from t_user,t_group_user where t_user.id = t_group_user.user_id and t_group_user.group_id=%d;",
+		'sqlContest':r"select t_contest.id,t_contest.title from t_contest,t_contest_group where t_contest.id=t_contest_group.contest_id and t_contest_group.group_id=%d;",
 		'sqlCode':r'"select problem_id,id,code,language,result from t_contest_group,t_solution where  t_contest_group.group_id=%d and t_contest_group.contest_id=t_solution.contest_id and t_solution.user_id=%d and t_solution.contest_id=%d;" % (GROUP,user[3],contest[0])',
 		'sqlSequence':r'"select sequence from t_contest_problem where problem_id=%d and contest_id=%d" % (code[0],contest[0])'
 		}
 sqlExam={
-		'sqlUser':r'"select user.user_id,user.nick,user.school from user,contest_reservation where user.user_id = contest_reservation.user_id and contest_reservation.contest_id=%d;" % CONTEST',
-		'sqlContest':r'"select contest.contest_id,contest.title from contest where contest.contest_id=%d;" % CONTEST',
+		'sqlUser':r"select user.user_id,user.nick,user.school from user,contest_reservation where user.user_id = contest_reservation.user_id and contest_reservation.contest_id=%d;",
+		'sqlContest':r"select contest.contest_id,contest.title from contest where contest.contest_id=%d;",
 		'sqlCode':r'"select solution.problem_id,solution.solution_id,source_code.source,solution.language,solution.result from solution,source_code where solution.user_id=\'%s\' and solution.contest_id=%d and solution.solution_id=source_code.solution_id;" % (user[0],contest[0])',
 		'sqlSequence':r'"select sequence from contest_problem where problem_id=%d and contest_id=%d" % (code[0],contest[0])'
 		}
@@ -72,16 +72,25 @@ LANGUAGEEXERCISE={
 		2:'java',
 		}
 class Escode:
-	def __init__(self,sqls,isExam):
+	def __init__(self,sqls,isExam,contest=None,group=None):
 		self.sqlUser=sqls['sqlUser']
 		self.sqlContest=sqls['sqlContest']
 		self.sqlCode=sqls['sqlCode']
 		self.sqlSequence=sqls['sqlSequence']
 		self.isExam=isExam
+                self.contest = contest
+                self.group = group
 	def getUser(self,conn):
 		cur = conn.cursor()
-		cur.execute(eval(self.sqlUser))
+                if self.isExam:
+                    self.sqlUser=self.sqlUser % self.contest
+                else:
+                    self.sqlUser=self.sqlUser % self.group
+                print self.sqlUser
+                cur.execute(self.sqlUser)
+
 		result=cur.fetchall()
+                print result
 		return result
 
 
@@ -94,7 +103,12 @@ class Escode:
 				os.mkdir(EXERCISE)
 		except OSError:
 			print "file exists!"
-		cur.execute(eval(self.sqlContest))
+                if self.isExam:
+                    self.sqlContest=self.sqlContest % self.contest
+                else:
+                    self.sqlContest=self.sqlContest % self.group
+                print self.sqlContest
+                cur.execute(self.sqlContest)
 		contests=cur.fetchall()
 		print contests,'aaaaaaaaaaaaaaaa'
 		for contest in contests:

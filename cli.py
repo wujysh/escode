@@ -24,12 +24,12 @@ def main():
 
 	if options.group:
 		GROUP=options.group
-		es=escode.Escode(escode.sqlExercise,False)
+		es=escode.Escode(escode.sqlExercise,False,group=GROUP)
 		users=es.getUser(conn)
 		es.extract(users,conn)
 	elif options.contest:
 		CONTEST=options.contest
-		es=escode.Escode(escode.sqlExam,True)
+		es=escode.Escode(escode.sqlExam,True,contest=CONTEST)
 		users=es.getUser(conn)
 		es.extract(users,conn)
 
