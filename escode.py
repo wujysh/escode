@@ -3,19 +3,19 @@ __metaclass__=type
 from mysql import connector
 import os
 
-GROUP=8
+#GROUP=8
 ROOT=u'源代码'
 EXAM=u'比赛源代码'
 EXERCISE=u'练习源代码'
 HOSTREMOTE='222.204.211.2'
 DBREMOTE='onlinejudge'
-CONTEST=20140520
+#CONTEST=20140520
 HOSTLOCAL='127.0.0.1'
-DBLOCAL='dhuoj'
+#DBLOCAL='dhuoj'
 sqlExercise={
 		'sqlUser':r"select t_user.loginId,t_user.name,t_user.class,t_user.id from t_user,t_group_user where t_user.id = t_group_user.user_id and t_group_user.group_id=%d;",
 		'sqlContest':r"select t_contest.id,t_contest.title from t_contest,t_contest_group where t_contest.id=t_contest_group.contest_id and t_contest_group.group_id=%d;",
-		'sqlCode':r'"select problem_id,id,code,language,result from t_contest_group,t_solution where  t_contest_group.group_id=%d and t_contest_group.contest_id=t_solution.contest_id and t_solution.user_id=%d and t_solution.contest_id=%d;" % (GROUP,user[3],contest[0])',
+		'sqlCode':r'"select problem_id,id,code,language,result from t_contest_group,t_solution where  t_contest_group.group_id=%d and t_contest_group.contest_id=t_solution.contest_id and t_solution.user_id=%d and t_solution.contest_id=%d;" % (self.group,user[3],contest[0])',
 		'sqlSequence':r'"select sequence from t_contest_problem where problem_id=%d and contest_id=%d" % (code[0],contest[0])'
 		}
 sqlExam={
