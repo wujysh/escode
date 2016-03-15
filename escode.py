@@ -75,6 +75,7 @@ LANGUAGEEXERCISE={
 		0:'cpp',
 		1:'c',
 		2:'java',
+		3:'cc',  # for C++11
 		}
 class Escode:
 	def __init__(self,sqls,isExam,contest=None,group=None):
@@ -146,7 +147,7 @@ class Escode:
 							fileName=os.path.join(userFolder,user[0]+'_'+user[1]+'_'+TITLE[sequence[0][0]]+'_'+'WR'+'_'+str(code[1])+'.'+ext)
 						f=file(fileName,'w')
 						try:
-							f.write(code[2].encode('gbk'))
+							f.write(code[2].encode('utf8'))
 						except UnicodeEncodeError:
 							print type(code[2])
 							print "encode error",fileName
